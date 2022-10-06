@@ -2,6 +2,17 @@
 
 This package add animated scrolling to all anchor links using [scrollTo](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollTo).  It also adds a default cross-dissolve page transition which feels faster than the normal Nuxt `out-in` transition.  This works best when you do the second step of **Install**, making the page scroll to top before the transition starts.
 
+## use-gsap-scrollsmoother branch
+
+Changes:
+
+This branch refactors all the internal scroll behavior to work with projects that use GSAP ScrollSmoother.  The names of all methods and VueX store module properties remain the same.  NOTE: This branch uses imports from `scrollsmoother` and `gsap/all`.  These are not included as dependencies here and must be dependencies of your own project.
+
+More changes:
+
+- Replaced the scroll event listener with an `onComplete` tween handler.
+- Added  `verticalOffset`  property to options.  Might be nice to add options to configure how fast it scrolls too.
+
 ## Install
 
 1. `yarn add nuxt-page-transition-and-anchor-handler` or `npm install nuxt-page-transition-and-anchor-handler`
