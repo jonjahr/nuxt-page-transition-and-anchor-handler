@@ -15,6 +15,7 @@ module.exports = function (options) {
 		css: true, // Include the css
 		scrollToTopBeforePageChange: true,
 		initialDelay: 500,
+		verticalOffset: 0, // Vertical offset.  Often is `header-h * -1`
 		afterPageChangeDelay: 0,
 		anchorSelector: '[data-anchor={{anchor}}]',
 		transition: {

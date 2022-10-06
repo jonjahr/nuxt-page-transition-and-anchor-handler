@@ -1,3 +1,6 @@
+import ScrollSmoother from 'scrollsmoother'
+import { gsap, ScrollTrigger } from 'gsap/all'
+
 // Get settings from the module
 const options = JSON.parse('<%= options %>');
 
@@ -43,13 +46,8 @@ export default function({ app, store }, inject) {
 	// Scroll to an element or value
 	function scrollTo (target) {
 
-		// Figure out the offset we're scrolling to
-		const scrollY = target instanceof Element ?
-			Math.floor(target.getBoundingClientRect().top + window.scrollY) :
-			parseInt(target)
-
 		// Start scrolling
-		store.commit('ptah/startScroll', executeScroll(scrollY)
+		store.commit('ptah/startScroll', executeScroll(target)
 
 		// Update the scolling boolean after it's done
 		.then(function() {
@@ -57,37 +55,49 @@ export default function({ app, store }, inject) {
 		}))
 	}
 
-	// Do native scrolling and watch for scroll to complete. Using polling
-	let checkScrollDone;
-	function executeScroll(scrollY) {
+	// Do scrolling and wait for scroll to complete.
+	function executeScroll(target) {
+
+		// Get GSAP ScrollSmoother instance
+		const scroller = ScrollSmoother.get()
+
+		// If scrolling is disabled, immediately resolve
+		if (scroller.paused()) {
+			return Promise.resolve()
+		}
+
+		// Get target's vertical offset and the distance we have to scroll
+		const targetOffset = target instanceof Element ?
+			// If target is an element, calculate its offset when the top of the element
+			// reaches `verticalOffset` pixels from the top of the viewport.
+			scroller.offset(target, `top ${options.verticalOffset}px`) :
+			// Use the raw passed-in offset value
+			parseInt(target)
+		const scrollDistance = Math.abs( targetOffset - scroller.scrollTop() )
+
+		// Calculate scroll time. Use a base time of 0.5 sec plus
+		// a combination of scrollDistance and our scroller config value.
+		const scrollDurationSec = 0.5 + scroller.smooth() * scrollDistance / 5000
 
 		// If already at target, immediately resolve
-		if (window.scrollY == scrollY) return Promise.resolve()
-
-		// Cancel previous scroll listener
-		if (checkScrollDone) {
-			window.removeEventListener('scroll', checkScrollDone, { passive: true })
+		if (scrollDistance == 0) {
+			return Promise.resolve()
 		}
 
 		// Make promise
 		return new Promise(resolve => {
-
-			// Check if the scroll has finished
-			checkScrollDone = () => {
-				if (window.scrollY != scrollY) return
-				window.removeEventListener('scroll', checkScrollDone, { passive: true })
-				checkScrollDone = null
-				resolve()
-			}
-
-			// Start scrolling and listener for complete
-			window.addEventListener('scroll', checkScrollDone, { passive: true })
-			window.scrollTo({ top: scrollY, behavior: 'smooth' })
+			// Start scrolling
+			gsap.to(scroller, {
+				scrollTop: Math.min(ScrollTrigger.maxScroll(window), targetOffset),
+				duration: scrollDurationSec,
+				ease: 'expo.inOut',
+				onComplete: resolve
+			})
 		})
 	}
 
 	// Scroll to the current anchor on the page
-	function scollToHash() {
+	function scrollToHash() {
 
 		// Require a hash
 		if (!app.router.currentRoute.hash) return
@@ -106,20 +116,18 @@ export default function({ app, store }, inject) {
 	// handled by the global layout transition.
 	app.router.afterEach(function (to, from) {
 		if (to.path === from.path && to.hash !== from.hash) {
-			scollToHash();
+			scrollToHash();
 		}
 	})
 
 	// Listen for the initial page build and then wait a bit for it to finish
 	// rendering.
 	window.onNuxtReady(function() {
-		return setTimeout(scollToHash, options.initialDelay);
+		return setTimeout(scrollToHash, options.initialDelay);
 	})
 
-	// Inject a scroll to top helper
+	// Inject helpers
 	inject('scrollTo', scrollTo)
-
-	// Inject a scroll to top helper
 	inject('scrollToTop', function () {
 		scrollTo(0)
 	})
@@ -138,12 +146,12 @@ export default function({ app, store }, inject) {
 	// scrolling if there is a relevant hash after waiting a tick (at minimum).
 	inject('afterPageEnter', function() {
 		this.$store.commit('ptah/transitioning', false)
-		setTimeout(scollToHash, options.afterPageChangeDelay)
+		setTimeout(scrollToHash, options.afterPageChangeDelay)
 	})
 
 	// Set the vertical offset at runtime
 	inject('setVerticalOffset', function(height) {
-		options.animatedScrollTo.verticalOffset = height
+		options.verticalOffset = height
 	})
 
 	// Scroll to top when switching to page with a new path. This hook is fired
