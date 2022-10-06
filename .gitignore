@@ -60,4 +60,14 @@ typings/
 # next.js build output
 .next
 
+# Mac files
 .DS_Store
+
+# Yarn files
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
