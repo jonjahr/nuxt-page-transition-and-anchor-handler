@@ -1,14 +1,12 @@
 # About the "use-gsap-scrollsmoother" branch
 
-This branch refactors all the internal scroll behavior to work with projects that use GSAP ScrollSmoother.  All methods and VueX store module properties remain the same as the main branch.  
+This branch has the same API and methods as the main branch, but its internals are refactored to use [GSAP ScrollSmoother](https://greensock.com/docs/v3/Plugins/ScrollSmoother), a paid plugin of GSAP included in [Shockingly Green Memberships](https://greensock.com/club/#feature-list) and up.  
 
-Requirements:
+Your project must have `gsap` installed, and GSAP must include the "ScrollSmoother" bonus plugin!  This package doesn't include this, and will fail without it.  This was on purpose, because I didn't want to put the paid plugins in a public repo.
 
-Your project must have `gsap` installed, and it must have "ScrollSmoother" bonus plugin!  (Included in [Shockingly Green](https://greensock.com/club/#feature-list) and up)  This package doesn't include this, and will fail without it.  I didn't want to put the paid plugins in a public repo.
+The best way I found to install GSAP is to go to the [install page](https://greensock.com/docs/v3/Installation) and follow the section titled "NPM / Build Tools". TLDR: download the zip file, copy the tgz into your repo, and run `yarn add ./gsap-bonus.tgz`.
 
-The best way I found to install GSAP is to follow the "NPM / Build Tools" steps on the [install page](https://greensock.com/docs/v3/Installation). TLDR: download the zip file, copy the tgz into your repo, and run `yarn add ./gsap-bonus.tgz`.
-
-More changes:
+More details:
 
 - Added  `verticalOffset` property to options.  Might be nice to add options to configure how fast it scrolls too.
 # nuxt-page-transition-and-anchor-handler
