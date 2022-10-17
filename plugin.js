@@ -1,5 +1,4 @@
-import ScrollSmoother from 'scrollsmoother'
-import { gsap, ScrollTrigger } from 'gsap/all'
+import { gsap, ScrollTrigger, ScrollSmoother } from 'gsap/all'
 
 // Get settings from the module
 const options = JSON.parse('<%= options %>');
