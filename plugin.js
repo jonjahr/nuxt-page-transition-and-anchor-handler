@@ -43,10 +43,10 @@ export default function({ app, store }, inject) {
 	})
 
 	// Scroll to an element or value
-	function scrollTo (target) {
+	function scrollTo (target, {immediate}={}) {
 
 		// Start scrolling
-		store.commit('ptah/startScroll', executeScroll(target)
+		store.commit('ptah/startScroll', executeScroll(target, {immediate})
 
 		// Update the scolling boolean after it's done
 		.then(function() {
@@ -55,7 +55,7 @@ export default function({ app, store }, inject) {
 	}
 
 	// Do scrolling and wait for scroll to complete.
-	function executeScroll(target) {
+	function executeScroll(target, {immediate}={}) {
 
 		// Get GSAP ScrollSmoother instance
 		const scroller = ScrollSmoother.get()
@@ -88,7 +88,7 @@ export default function({ app, store }, inject) {
 			// Start scrolling
 			gsap.to(scroller, {
 				scrollTop: Math.min(ScrollTrigger.maxScroll(window), targetOffset),
-				duration: scrollDurationSec,
+				duration: immediate==true ? 0 : scrollDurationSec,
 				ease: 'expo.inOut',
 				onComplete: resolve
 			})
@@ -166,6 +166,15 @@ export default function({ app, store }, inject) {
 				setTimeout(() => { scrollTo(0) }, 0)
 			}
 			next()
+		})
+	} else {
+		// Scroll to top immediately after navigation.  We must use scrollTo(), or else
+		// the browser's default "scroll to top" behavior will cause ScrollSmoother to 
+		// scroll us smoothly to the top.  We don't want smooth, we want immediate.
+		app.router.afterEach((to, from, failure) => {
+			if (process.client && from.name && to.path != from.path) {
+				setTimeout(() => { scrollTo(0, {immediate: true}) }, 0)
+			}
 		})
 	}
 

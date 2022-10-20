@@ -27,12 +27,10 @@ module.exports = function (options) {
 		},
 		...options
 	}
-
-	// This package will controll scroll behavior instead
-	if (options.scrollToTopBeforePageChange) {
-		this.options.router.scrollBehavior = function() { return false }
-	}
-
+	
+	// This package will control scroll behavior regardless of scrollToTopBeforePageChange
+	this.options.router.scrollBehavior = function() { return false }
+	
 	// Set the Nuxt page transition
 	this.options.transition = options.transition
 	this.options.pageTransition = options.transition // Nuxt >= 2.7
